@@ -2,12 +2,22 @@
   "todos": [
     {
       "id": "b817",
-      "text": "12312",
-      "completed": true
+      "text": "12312fa",
+      "completed": false
     },
     {
       "id": "45db",
-      "text": "daaf",
+      "text": "daaf1gdd",
+      "completed": true
+    },
+    {
+      "id": "2f81",
+      "text": "new todo1",
+      "completed": true
+    },
+    {
+      "id": "d98b",
+      "text": "fasfaf",
       "completed": false
     }
   ]

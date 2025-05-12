@@ -1,9 +1,9 @@
 import React from "react"
 import { API } from "./api/api.js"
-import { Edit, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
 import './App.css';
+import TodoLists from './components/TodoLists'; 
 
-export class App extends React.Component {
+export class App extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
@@ -12,15 +12,9 @@ export class App extends React.Component {
             editingId: null,
             editText: ''
         }
-        this.handleAdd = this.handleAdd.bind(this)
-        this.handleInputChange = this.handleInputChange.bind(this)
-        this.handleToggleComplete = this.handleToggleComplete.bind(this)
-        this.handleDelete = this.handleDelete.bind(this)
-        this.handleEdit = this.handleEdit.bind(this)
-        this.handleEditChange = this.handleEditChange.bind(this)
     }
 
-    componentDidMount() {
+    componentDidMount = () => {
         API.getLists()
             .then(todos => {
                 this.setState({ todos })
@@ -28,11 +22,11 @@ export class App extends React.Component {
             .catch(err => console.error("Failed to fetch todos:", err))
     }
 
-    handleInputChange(e) {
+    handleInputChange = (e) => {
         this.setState({ inputValue: e.target.value })
     }
 
-    handleAdd(e) {
+    handleAdd = (e) => {
         e.preventDefault()
         if (!this.state.inputValue.trim()) return
 
@@ -52,7 +46,7 @@ export class App extends React.Component {
             .catch(err => console.error("Failed to add todo:", err))
     }
 
-    handleToggleComplete(id) {
+    handleToggleComplete = (id) => {
         const updatedTodos = this.state.todos.map(todo => {
             if (todo.id === id) {
                 return { ...todo, completed: !todo.completed }
@@ -71,7 +65,7 @@ export class App extends React.Component {
             })
     }
 
-    handleDelete(id) {
+    handleDelete = (id) => {
         API.deleteList(id)
             .then(() => {
                 this.setState({
@@ -82,8 +76,7 @@ export class App extends React.Component {
             .catch(err => console.error("Failed to delete todo:", err))
     }
 
-    handleEdit(id, text) {
-        // If we're already editing this item, save the changes
+    handleEdit = (id, text) => {
         if (id === this.state.editingId) {
             const updatedTodos = this.state.todos.map(todo => {
                 if (todo.id === id) {
@@ -107,7 +100,6 @@ export class App extends React.Component {
                     console.error("Failed to update todo:", err)
                 })
         }
-        // Otherwise, start editing this item
         else {
             this.setState({
                 editingId: id,
@@ -116,7 +108,7 @@ export class App extends React.Component {
         }
     }
 
-    handleEditChange(e) {
+    handleEditChange = (e) => {
         this.setState({
             editText: e.target.value
         })
@@ -146,97 +138,16 @@ export class App extends React.Component {
                     </div>
                 </div>
 
-                <div className="grid-container">
-                    <div className="column">
-                        <h2 className="column-header">Pending Tasks</h2>
-                        <div id="todolist-todo" className="todo-list">
-                            {incompleteTodos.map(todo => (
-                                <div key={todo.id} className="todo-item pending">
-                                    <div className="todo-content">
-                                        {editingId === todo.id ? (
-                                            <input
-                                                type="text"
-                                                value={editText}
-                                                onChange={this.handleEditChange}
-                                                className="input-field"
-                                                autoFocus
-                                            />
-                                        ) : (
-                                            todo.text
-                                        )}
-                                    </div>
-                                    <div className="button-group">
-                                        <button
-                                            onClick={() => this.handleEdit(todo.id, todo.text)}
-                                            className="edit-button"
-                                        >
-                                            <Edit size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => this.handleDelete(todo.id)}
-                                            className="delete-button"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                        <div className="move-button-container">
-                                            <button
-                                                onClick={() => this.handleToggleComplete(todo.id)}
-                                                className="move-button"
-                                            >
-                                                <ArrowRight size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="column">
-                        <h2 className="column-header">Completed Tasks</h2>
-                        <div id="todolist-done" className="todo-list">
-                            {completedTodos.map(todo => (
-                                <div key={todo.id} className="todo-item completed">
-                                    <div className="move-button-container">
-                                        <button
-                                            onClick={() => this.handleToggleComplete(todo.id)}
-                                            className="move-button"
-                                        >
-                                            <ArrowLeft size={16} />
-                                        </button>
-                                    </div>
-                                    <div className="todo-content">
-                                        {editingId === todo.id ? (
-                                            <input
-                                                type="text"
-                                                value={editText}
-                                                onChange={this.handleEditChange}
-                                                className="input-field"
-                                                autoFocus
-                                            />
-                                        ) : (
-                                            <span className="completed-text">{todo.text}</span>
-                                        )}
-                                    </div>
-                                    <div className="button-group">
-                                        <button
-                                            onClick={() => this.handleEdit(todo.id, todo.text)}
-                                            className="edit-button"
-                                        >
-                                            <Edit size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => this.handleDelete(todo.id)}
-                                            className="delete-button"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <TodoLists 
+                    incompleteTodos={incompleteTodos}
+                    completedTodos={completedTodos}
+                    editingId={editingId}
+                    editText={editText}
+                    onToggleComplete={this.handleToggleComplete}
+                    onDelete={this.handleDelete}
+                    onEdit={this.handleEdit}
+                    onEditChange={this.handleEditChange}
+                />
             </div>
         )
     }
