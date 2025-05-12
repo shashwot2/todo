@@ -33,7 +33,7 @@ export const API = (() => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(updates)
+            body: JSON.stringify(id)
         })
             .then(response => response.json());
     }
