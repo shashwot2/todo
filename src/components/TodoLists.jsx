@@ -1,113 +1,100 @@
 import React from "react";
 import { Edit, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
 
-class TodoLists extends React.PureComponent {
-    render() {
-        const {
-            incompleteTodos,
-            completedTodos,
-            editingId,
-            editText,
-            onToggleComplete,
-            onDelete,
-            onEdit,
-            onEditChange
-        } = this.props;
-
-        return (
-            <div className="grid-container">
-                <div className="column">
-                    <h2 className="column-header">Pending Tasks</h2>
-                    <div id="todolist-todo" className="todo-list">
-                        {incompleteTodos.map(todo => (
-                            <div key={todo.id} className="todo-item pending">
-                                <div className="todo-content">
-                                    {editingId === todo.id ? (
-                                        <input
-                                            type="text"
-                                            value={editText}
-                                            onChange={onEditChange}
-                                            className="input-field"
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        todo.text
-                                    )}
-                                </div>
-                                <div className="button-group">
-                                    <button
-                                        onClick={() => onEdit(todo.id, todo.text)}
-                                        className="edit-button"
-                                    >
-                                        <Edit size={22} />
-                                    </button>
-                                    <button
-                                        onClick={() => onDelete(todo.id)}
-                                        className="delete-button"
-                                    >
-                                        <Trash2 size={22} />
-                                    </button>
-                                    <div className="move-button-container">
-                                        <button
-                                            onClick={() => onToggleComplete(todo.id)}
-                                            className="move-button"
-                                        >
-                                            <ArrowRight size={22} />
-                                        </button>
-                                    </div>
-                                </div>
+export const todoLists = ({incompleteTodos, completedTodos, editingId, editText, onToggleComplete, onDelete, onEdit, onEditChange}) => {
+    return (
+        <div className="grid-container" >
+            <div className="column">
+                <h2 className="column-header">Pending Tasks</h2>
+                <div id="todolist-todo" className="todo-list">
+                    {incompleteTodos.map(todo => (
+                        <div key={todo.id} className="todo-item pending">
+                            <div className="todo-content">
+                                {editingId === todo.id ? (
+                                    <input
+                                        type="text"
+                                        value={editText}
+                                        onChange={onEditChange}
+                                        className="input-field"
+                                        autoFocus
+                                    />
+                                ) : (
+                                    todo.text
+                                )}
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="column">
-                    <h2 className="column-header">Completed Tasks</h2>
-                    <div id="todolist-done" className="todo-list">
-                        {completedTodos.map(todo => (
-                            <div key={todo.id} className="todo-item completed">
+                            <div className="button-group">
+                                <button
+                                    onClick={() => onEdit(todo.id, todo.text)}
+                                    className="edit-button"
+                                >
+                                    <Edit size={22} />
+                                </button>
+                                <button
+                                    onClick={() => onDelete(todo.id)}
+                                    className="delete-button"
+                                >
+                                    <Trash2 size={22} />
+                                </button>
                                 <div className="move-button-container">
                                     <button
                                         onClick={() => onToggleComplete(todo.id)}
                                         className="move-button"
                                     >
-                                        <ArrowLeft size={22} />
-                                    </button>
-                                </div>
-                                <div className="todo-content">
-                                    {editingId === todo.id ? (
-                                        <input
-                                            type="text"
-                                            value={editText}
-                                            onChange={onEditChange}
-                                            className="input-field"
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        <span className="completed-text">{todo.text}</span>
-                                    )}
-                                </div>
-                                <div className="button-group">
-                                    <button
-                                        onClick={() => onEdit(todo.id, todo.text)}
-                                        className="edit-button"
-                                    >
-                                        <Edit size={22} />
-                                    </button>
-                                    <button
-                                        onClick={() => onDelete(todo.id)}
-                                        className="delete-button"
-                                    >
-                                        <Trash2 size={22} />
+                                        <ArrowRight size={22} />
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             </div>
-        );
-    }
+
+            <div className="column">
+                <h2 className="column-header">Completed Tasks</h2>
+                <div id="todolist-done" className="todo-list">
+                    {completedTodos.map(todo => (
+                        <div key={todo.id} className="todo-item completed">
+                            <div className="move-button-container">
+                                <button
+                                    onClick={() => onToggleComplete(todo.id)}
+                                    className="move-button"
+                                >
+                                    <ArrowLeft size={22} />
+                                </button>
+                            </div>
+                            <div className="todo-content">
+                                {editingId === todo.id ? (
+                                    <input
+                                        type="text"
+                                        value={editText}
+                                        onChange={onEditChange}
+                                        className="input-field"
+                                        autoFocus
+                                    />
+                                ) : (
+                                    <span className="completed-text">{todo.text}</span>
+                                )}
+                            </div>
+                            <div className="button-group">
+                                <button
+                                    onClick={() => onEdit(todo.id, todo.text)}
+                                    className="edit-button"
+                                >
+                                    <Edit size={22} />
+                                </button>
+                                <button
+                                    onClick={() => onDelete(todo.id)}
+                                    className="delete-button"
+                                >
+                                    <Trash2 size={22} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div >
+    );
 }
 
-export default TodoLists;
+export default todoLists;

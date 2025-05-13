@@ -1,53 +1,44 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { API } from "./api/api.js"
 import './App.css';
-import TodoLists from './components/TodoLists'; 
+import TodoLists from './components/TodoLists';
 
-export class App extends React.PureComponent {
-    constructor(props) {
-        super(props)
-        this.state = {
-            inputValue: '',
-            todos: [],
-            editingId: null,
-            editText: ''
-        }
-    }
-
-    componentDidMount = () => {
-        API.getLists()
-            .then(todos => {
-                this.setState({ todos })
-            })
+export const App = () => {
+    const [inputValue, setInputValue] = useState('')
+    const [todos, setTodos] = useState([])
+    const [editingId, setEditingId] = useState(null)
+    const [editText, setEditText] = useState('')
+    useEffect(() => {
+        API.getLists().then(todos => {
+            setTodos(todos)
+        })
             .catch(err => console.error("Failed to fetch todos:", err))
+    }, [])
+
+    const handleInputChange = (e) => {
+        setInputValue(e.target.value)
     }
 
-    handleInputChange = (e) => {
-        this.setState({ inputValue: e.target.value })
-    }
-
-    handleAdd = (e) => {
+    const handleAdd = (e) => {
         e.preventDefault()
-        if (!this.state.inputValue.trim()) return
+        if (!inputValue.trim()) return
 
         const newTodo = {
-            text: this.state.inputValue,
+            text: inputValue,
             completed: false
         }
 
         API.addList(newTodo)
             .then(response => {
-                this.setState({
-                    todos: [...this.state.todos, response],
-                    inputValue: ''
-                })
+                setTodos([...todos, response])
+                setInputValue('')
                 console.log("Todo added successfully")
             })
             .catch(err => console.error("Failed to add todo:", err))
     }
 
-    handleToggleComplete = (id) => {
-        const updatedTodos = this.state.todos.map(todo => {
+    const handleToggleComplete = (id) => {
+        const updatedTodos = todos.map(todo => {
             if (todo.id === id) {
                 return { ...todo, completed: !todo.completed }
             }
@@ -58,29 +49,29 @@ export class App extends React.PureComponent {
 
         API.updateList(id, updatedTodo)
             .then(() => {
-                this.setState({ todos: updatedTodos })
+                setTodos(updatedTodos)
             })
             .catch(err => {
                 console.error("Failed to update todo:", err)
             })
     }
 
-    handleDelete = (id) => {
+    const handleDelete = (id) => {
         API.deleteList(id)
             .then(() => {
-                this.setState({
-                    todos: this.state.todos.filter(todo => todo.id !== id)
-                })
+                setTodos(
+                    todos.filter(todo => todo.id !== id)
+                )
                 console.log("Todo deleted successfully")
             })
             .catch(err => console.error("Failed to delete todo:", err))
     }
 
-    handleEdit = (id, text) => {
-        if (id === this.state.editingId) {
-            const updatedTodos = this.state.todos.map(todo => {
+    const handleEdit = (id, text) => {
+        if (id === editingId) {
+            const updatedTodos = todos.map(todo => {
                 if (todo.id === id) {
-                    return { ...todo, text: this.state.editText }
+                    return { ...todo, text: editText }
                 }
                 return todo
             })
@@ -89,11 +80,9 @@ export class App extends React.PureComponent {
 
             API.updateList(id, updatedTodo)
                 .then(() => {
-                    this.setState({
-                        todos: updatedTodos,
-                        editingId: null,
-                        editText: ''
-                    })
+                    setTodos(updatedTodos)
+                    setEditingId(null)
+                    setEditText('')
                     console.log("Todo updated successfully")
                 })
                 .catch(err => {
@@ -101,56 +90,48 @@ export class App extends React.PureComponent {
                 })
         }
         else {
-            this.setState({
-                editingId: id,
-                editText: text
-            })
+            setEditingId(id)
+            setEditText(text)
         }
     }
 
-    handleEditChange = (e) => {
-        this.setState({
-            editText: e.target.value
-        })
+    const handleEditChange = (e) => {
+        setEditText(e.target.value)
     }
+    const incompleteTodos = todos.filter(todo => !todo.completed)
+    const completedTodos = todos.filter(todo => todo.completed)
 
-    render() {
-        const { todos, inputValue, editingId, editText } = this.state
-        const incompleteTodos = todos.filter(todo => !todo.completed)
-        const completedTodos = todos.filter(todo => todo.completed)
-
-        return (
-            <div className="container">
-                <div className="input-container">
-                    <div id="inputPlace" className="input-form">
-                        <input
-                            value={inputValue}
-                            onChange={this.handleInputChange}
-                            placeholder="Add a new todo"
-                            className="input-field"
-                        />
-                        <button
-                            onClick={this.handleAdd}
-                            className="submit-button"
-                        >
-                            submit
-                        </button>
-                    </div>
+    return (
+        <div className="container">
+            <div className="input-container">
+                <div id="inputPlace" className="input-form">
+                    <input
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        placeholder="Add a new todo"
+                        className="input-field"
+                    />
+                    <button
+                        onClick={handleAdd}
+                        className="submit-button"
+                    >
+                        submit
+                    </button>
                 </div>
-
-                <TodoLists 
-                    incompleteTodos={incompleteTodos}
-                    completedTodos={completedTodos}
-                    editingId={editingId}
-                    editText={editText}
-                    onToggleComplete={this.handleToggleComplete}
-                    onDelete={this.handleDelete}
-                    onEdit={this.handleEdit}
-                    onEditChange={this.handleEditChange}
-                />
             </div>
-        )
-    }
+
+            <TodoLists
+                incompleteTodos={incompleteTodos}
+                completedTodos={completedTodos}
+                editingId={editingId}
+                editText={editText}
+                onToggleComplete={handleToggleComplete}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+                onEditChange={handleEditChange}
+            />
+        </div>
+    )
 }
 
 export default App

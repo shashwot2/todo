@@ -3,22 +3,19 @@
     {
       "id": "b817",
       "text": "12312fa",
-      "completed": false
+      "completed": true,
+      "editText": "12312fa5566"
     },
     {
       "id": "45db",
-      "text": "daaf1gdd",
+      "text": "daaf1gdd414",
       "completed": true
     },
     {
       "id": "2f81",
       "text": "new todo1",
-      "completed": true
-    },
-    {
-      "id": "d98b",
-      "text": "fasfaf",
-      "completed": false
+      "completed": false,
+      "editText": "new todo1fa"
     }
   ]
 }
