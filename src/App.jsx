@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { API } from "./api/api.js"
 import './App.css';
 import TodoLists from './components/TodoLists';
@@ -8,6 +8,9 @@ export const App = () => {
     const [todos, setTodos] = useState([])
     const [editingId, setEditingId] = useState(null)
     const [editText, setEditText] = useState('')
+
+    const inputRef = useRef(null)
+
     useEffect(() => {
         API.getLists().then(todos => {
             setTodos(todos)
@@ -15,9 +18,13 @@ export const App = () => {
             .catch(err => console.error("Failed to fetch todos:", err))
     }, [])
 
-    const handleInputChange = (e) => {
+    useEffect(() => {
+        inputRef.current?.focus()
+    }, [])
+
+    const handleInputChange = useCallback((e) => {
         setInputValue(e.target.value)
-    }
+    }, [])
 
     const handleAdd = (e) => {
         e.preventDefault()
@@ -30,48 +37,19 @@ export const App = () => {
 
         API.addList(newTodo)
             .then(response => {
-                setTodos([...todos, response])
+                setTodos(prevTodos => [...prevTodos, response])
                 setInputValue('')
+                inputRef.current?.focus()
                 console.log("Todo added successfully")
             })
             .catch(err => console.error("Failed to add todo:", err))
     }
 
-    const handleToggleComplete = (id) => {
-        const updatedTodos = todos.map(todo => {
-            if (todo.id === id) {
-                return { ...todo, completed: !todo.completed }
-            }
-            return todo
-        })
-
-        const updatedTodo = updatedTodos.find(todo => todo.id === id)
-
-        API.updateList(id, updatedTodo)
-            .then(() => {
-                setTodos(updatedTodos)
-            })
-            .catch(err => {
-                console.error("Failed to update todo:", err)
-            })
-    }
-
-    const handleDelete = (id) => {
-        API.deleteList(id)
-            .then(() => {
-                setTodos(
-                    todos.filter(todo => todo.id !== id)
-                )
-                console.log("Todo deleted successfully")
-            })
-            .catch(err => console.error("Failed to delete todo:", err))
-    }
-
-    const handleEdit = (id, text) => {
-        if (id === editingId) {
-            const updatedTodos = todos.map(todo => {
+    const handleToggleComplete =(id) => {
+        setTodos(prevTodos => {
+            const updatedTodos = prevTodos.map(todo => {
                 if (todo.id === id) {
-                    return { ...todo, text: editText }
+                    return { ...todo, completed: !todo.completed }
                 }
                 return todo
             })
@@ -79,33 +57,76 @@ export const App = () => {
             const updatedTodo = updatedTodos.find(todo => todo.id === id)
 
             API.updateList(id, updatedTodo)
-                .then(() => {
-                    setTodos(updatedTodos)
-                    setEditingId(null)
-                    setEditText('')
-                    console.log("Todo updated successfully")
-                })
                 .catch(err => {
                     console.error("Failed to update todo:", err)
+                    return prevTodos
                 })
+
+            return updatedTodos
+        })
+    }
+
+    const handleDelete = (id) => {
+        API.deleteList(id)
+            .then(() => {
+                setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+                console.log("Todo deleted successfully")
+            })
+            .catch(err => console.error("Failed to delete todo:", err))
+    }
+
+    const handleEdit = (id) => {
+        if (id === editingId) {
+            setTodos(prevTodos => {
+                const updatedTodos = prevTodos.map(todo => {
+                    if (todo.id === id) {
+                        return { ...todo, text: editText }
+                    }
+                    return todo
+                })
+
+                const updatedTodo = updatedTodos.find(todo => todo.id === id)
+
+                API.updateList(id, updatedTodo)
+                    .catch(err => {
+                        console.error("Failed to update todo:", err)
+                        return prevTodos
+                    })
+
+                return updatedTodos
+            })
+
+            setEditingId(null)
+            setEditText('')
         }
         else {
-            setEditingId(id)
-            setEditText(text)
+            setTodos(prevTodos => {
+                const todoToEdit = prevTodos.find(todo => todo.id === id)
+                setEditingId(id)
+                setEditText(todoToEdit.text)
+                return prevTodos
+            })
         }
     }
 
-    const handleEditChange = (e) => {
-        setEditText(e.target.value)
-    }
-    const incompleteTodos = todos.filter(todo => !todo.completed)
-    const completedTodos = todos.filter(todo => todo.completed)
+    const handleEditChange = useCallback((value) => {
+        setEditText(value)
+    }, [])
+
+    // useMemo for expensive calculations
+    const filteredTodos = useMemo(() => {
+        const incompleteTodos = todos.filter(todo => !todo.completed)
+        const completedTodos = todos.filter(todo => todo.completed)
+
+        return { incompleteTodos, completedTodos }
+    }, [todos])
 
     return (
         <div className="container">
             <div className="input-container">
                 <div id="inputPlace" className="input-form">
                     <input
+                        ref={inputRef}
                         value={inputValue}
                         onChange={handleInputChange}
                         placeholder="Add a new todo"
@@ -121,8 +142,8 @@ export const App = () => {
             </div>
 
             <TodoLists
-                incompleteTodos={incompleteTodos}
-                completedTodos={completedTodos}
+                incompleteTodos={filteredTodos.incompleteTodos}
+                completedTodos={filteredTodos.completedTodos}
                 editingId={editingId}
                 editText={editText}
                 onToggleComplete={handleToggleComplete}
@@ -133,5 +154,6 @@ export const App = () => {
         </div>
     )
 }
+
 
 export default App
