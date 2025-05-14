@@ -22,9 +22,9 @@ export const App = () => {
         inputRef.current?.focus()
     }, [])
 
-    const handleInputChange = useCallback((e) => {
+    const handleInputChange = (e) => {
         setInputValue(e.target.value)
-    }, [])
+    }
 
     const handleAdd = (e) => {
         e.preventDefault()
@@ -45,7 +45,7 @@ export const App = () => {
             .catch(err => console.error("Failed to add todo:", err))
     }
 
-    const handleToggleComplete =(id) => {
+    const handleToggleComplete = (id) => {
         setTodos(prevTodos => {
             const updatedTodos = prevTodos.map(todo => {
                 if (todo.id === id) {
