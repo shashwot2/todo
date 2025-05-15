@@ -46,25 +46,24 @@ export const App = () => {
     }
 
     const handleToggleComplete = (id) => {
-        setTodos(prevTodos => {
-            const updatedTodos = prevTodos.map(todo => {
-                if (todo.id === id) {
-                    return { ...todo, completed: !todo.completed }
-                }
-                return todo
+        let updatedTodo;
+
+        const updatedTodos = todos.map(todo => {
+            if (todo.id === id) {
+                updatedTodo = { ...todo, completed: !todo.completed };
+                return updatedTodo;
+            }
+            return todo;
+        });
+
+        API.updateList(id, updatedTodo)
+            .then(() => {
+                setTodos(updatedTodos);
             })
-
-            const updatedTodo = updatedTodos.find(todo => todo.id === id)
-
-            API.updateList(id, updatedTodo)
-                .catch(err => {
-                    console.error("Failed to update todo:", err)
-                    return prevTodos
-                })
-
-            return updatedTodos
-        })
-    }
+            .catch(err => {
+                console.error("Failed to update todo:", err);
+            });
+    };
 
     const handleDelete = (id) => {
         API.deleteList(id)
@@ -77,25 +76,22 @@ export const App = () => {
 
     const handleEdit = (id) => {
         if (id === editingId) {
-            setTodos(prevTodos => {
-                const updatedTodos = prevTodos.map(todo => {
-                    if (todo.id === id) {
-                        return { ...todo, text: editText }
-                    }
-                    return todo
+            let updatedTodo;
+            const updatedTodos = todos.map(todo => {
+                if (todo.id === id) {
+                    updatedTodo = { ...todo, text: editText };
+                    return updatedTodo;
+                }
+                return todo;
+            });
+
+            API.updateList(id, updatedTodo)
+                .then(() => {
+                    setTodos(updatedTodos);
                 })
-
-                const updatedTodo = updatedTodos.find(todo => todo.id === id)
-
-                API.updateList(id, updatedTodo)
-                    .catch(err => {
-                        console.error("Failed to update todo:", err)
-                        return prevTodos
-                    })
-
-                return updatedTodos
-            })
-
+                .catch(err => {
+                    console.error("Failed to update todo:", err);
+                });
             setEditingId(null)
             setEditText('')
         }
