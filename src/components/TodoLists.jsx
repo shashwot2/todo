@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useContext, useMemo } from "react";
 import { Edit, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
-import { TodoContext } from '../context/TodoContext.jsx';
+import { useTodoContext } from '../context/TodoContext.jsx';
 
 const TodoLists = () => {
-    const { state, handlers } = useContext(TodoContext);
+    const { state, handlers } = useTodoContext();
     const { todos, editingId, editText } = state;
     const { handleToggleComplete, handleDelete, handleEdit, handleEditChange } = handlers;
 

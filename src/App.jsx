@@ -1,12 +1,18 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext, useRef } from "react";
 import './App.css';
 import TodoLists from './components/TodoLists';
 import { TodoContext } from './context/TodoContext';
 
 export const App = () => {
-  const { state, inputRef, handlers } = useContext(TodoContext);
+  const { state, handlers } = useContext(TodoContext);
   const { inputValue } = state;
   const { handleInputChange, handleAdd } = handlers;
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
 
   return (
     <div className="container">

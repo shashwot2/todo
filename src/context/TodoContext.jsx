@@ -1,5 +1,6 @@
-import React, { createContext, useReducer, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { API } from "../api/api.js";
+import { todoReducer } from "../reducer/TodoReducer";
 
 export const TodoContext = createContext();
 
@@ -10,63 +11,9 @@ const initialState = {
     editText: ''
 };
 
-function todoReducer(state, action) {
-    switch (action.type) {
-        case 'SET_INPUT_VALUE':
-            return { ...state, inputValue: action.payload };
-
-        case 'SET_TODOS':
-            return { ...state, todos: action.payload };
-
-        case 'ADD_TODO':
-            return {
-                ...state,
-                todos: [...state.todos, action.payload],
-                inputValue: ''
-            };
-
-        case 'TOGGLE_TODO':
-            return {
-                ...state,
-                todos: state.todos.map(todo =>
-                    todo.id === action.payload.id ? action.payload : todo
-                )
-            };
-
-        case 'DELETE_TODO':
-            return {
-                ...state,
-                todos: state.todos.filter(todo => todo.id !== action.payload)
-            };
-
-        case 'START_EDITING':
-            return {
-                ...state,
-                editingId: action.payload.id,
-                editText: action.payload.text
-            };
-
-        case 'UPDATE_EDIT_TEXT':
-            return { ...state, editText: action.payload };
-
-        case 'FINISH_EDITING':
-            return {
-                ...state,
-                todos: state.todos.map(todo =>
-                    todo.id === action.payload.id ? action.payload : todo
-                ),
-                editingId: null,
-                editText: ''
-            };
-
-        default:
-            return state;
-    }
-}
 
 export function TodoProvider({ children }) {
     const [state, dispatch] = useReducer(todoReducer, initialState);
-    const inputRef = useRef(null);
 
     useEffect(() => {
         API.getLists().then(todos => {
@@ -75,11 +22,7 @@ export function TodoProvider({ children }) {
             .catch(err => console.error("Failed to fetch todos:", err));
     }, []);
 
-    useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
-
-    const handleInputChange = (e) => {
+       const handleInputChange = (e) => {
         dispatch({ type: 'SET_INPUT_VALUE', payload: e.target.value });
     };
 
@@ -95,7 +38,6 @@ export function TodoProvider({ children }) {
         API.addList(newTodo)
             .then(response => {
                 dispatch({ type: 'ADD_TODO', payload: response });
-                inputRef.current?.focus();
                 console.log("Todo added successfully");
             })
             .catch(err => console.error("Failed to add todo:", err));
@@ -165,7 +107,6 @@ export function TodoProvider({ children }) {
     const contextValue = {
         state,
         dispatch,
-        inputRef,
         handlers: {
             handleInputChange,
             handleAdd,
@@ -183,4 +124,9 @@ export function TodoProvider({ children }) {
             {children}
         </TodoContext.Provider>
     );
+}
+
+export function useTodoContext() {
+  const context = useContext(TodoContext);
+  return context;
 }
