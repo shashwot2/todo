@@ -2,18 +2,13 @@
   "todos": [
     {
       "id": "b817",
-      "text": "12312fa1",
-      "completed": false,
+      "text": "12312fa172132gf",
+      "completed": true,
       "editText": "12312fa5566"
     },
     {
       "id": "45db",
       "text": "daaf1gdd4141ddaa313",
-      "completed": true
-    },
-    {
-      "id": "62dd",
-      "text": "asg1346123",
       "completed": true
     }
   ]
