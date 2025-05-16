@@ -1,16 +1,20 @@
-import React, { useRef, useEffect, useContext } from "react";
+import React, { useRef, useEffect, useContext, useMemo } from "react";
 import { Edit, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
-import { TodoContext } from '../context/ListContext.jsx';
+import { TodoContext } from '../context/TodoContext.jsx';
 
 const TodoLists = () => {
     const { state, handlers } = useContext(TodoContext);
     const { todos, editingId, editText } = state;
     const { handleToggleComplete, handleDelete, handleEdit, handleEditChange } = handlers;
-    
-    const editInputRef = useRef(null);
 
-    const incompleteTodos = todos.filter(todo => !todo.completed);
-    const completedTodos = todos.filter(todo => todo.completed);
+    const editInputRef = useRef(null);
+    let incompleteTodos;
+    let completedTodos;
+    useMemo(() => {
+        incompleteTodos = todos.filter(todo => !todo.completed);
+        completedTodos = todos.filter(todo => todo.completed);
+    }
+    ), [todos];
 
     useEffect(() => {
         if (editingId !== null) {
