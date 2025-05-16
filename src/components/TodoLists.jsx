@@ -1,8 +1,16 @@
-import React, { useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import { Edit, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { TodoContext } from '../context/ListContext.jsx';
 
-const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onToggleComplete, onDelete, onEdit, onEditChange }) => {
+const TodoLists = () => {
+    const { state, handlers } = useContext(TodoContext);
+    const { todos, editingId, editText } = state;
+    const { handleToggleComplete, handleDelete, handleEdit, handleEditChange } = handlers;
+    
     const editInputRef = useRef(null);
+
+    const incompleteTodos = todos.filter(todo => !todo.completed);
+    const completedTodos = todos.filter(todo => todo.completed);
 
     useEffect(() => {
         if (editingId !== null) {
@@ -10,20 +18,15 @@ const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onTog
         }
     }, [editingId]);
 
-    const handleEditChange = useCallback((e) => {
-        onEditChange(e.target.value);
-    }, [onEditChange]);
-
-    const handleKeyDown = useCallback((e, todoId) => {
+    const handleKeyDown = (e, todoId) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            onEdit(todoId);
+            handleEdit(todoId);
         } else if (e.key === 'Escape') {
             e.preventDefault();
-            onEdit(null);
+            handleEdit(null);
         }
-    }, [onEdit]);
-
+    };
 
     return (
         <div className="grid-container">
@@ -39,7 +42,7 @@ const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onTog
                                             ref={editInputRef}
                                             type="text"
                                             value={editText}
-                                            onChange={handleEditChange}
+                                            onChange={(e) => handleEditChange(e.target.value)}
                                             onKeyDown={(e) => handleKeyDown(e, todo.id)}
                                             className="input-field"
                                             autoFocus
@@ -50,20 +53,20 @@ const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onTog
                                 </div>
                                 <div className="button-group">
                                     <button
-                                        onClick={() => onEdit(todo.id, todo.text)}
+                                        onClick={() => handleEdit(todo.id)}
                                         className="edit-button"
                                     >
                                         <Edit size={22} />
                                     </button>
                                     <button
-                                        onClick={() => onDelete(todo.id)}
+                                        onClick={() => handleDelete(todo.id)}
                                         className="delete-button"
                                     >
                                         <Trash2 size={22} />
                                     </button>
                                     <div className="move-button-container">
                                         <button
-                                            onClick={() => onToggleComplete(todo.id)}
+                                            onClick={() => handleToggleComplete(todo.id)}
                                             className="move-button"
                                         >
                                             <ArrowRight size={22} />
@@ -82,7 +85,7 @@ const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onTog
                         <div key={todo.id} className="todo-item completed">
                             <div className="move-button-container">
                                 <button
-                                    onClick={() => onToggleComplete(todo.id)}
+                                    onClick={() => handleToggleComplete(todo.id)}
                                     className="move-button"
                                 >
                                     <ArrowLeft size={22} />
@@ -94,7 +97,7 @@ const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onTog
                                         ref={editingId === todo.id ? editInputRef : null}
                                         type="text"
                                         value={editText}
-                                        onChange={handleEditChange}
+                                        onChange={(e) => handleEditChange(e.target.value)}
                                         onKeyDown={(e) => handleKeyDown(e, todo.id)}
                                         className="input-field"
                                         autoFocus
@@ -105,26 +108,24 @@ const TodoLists = ({ incompleteTodos, completedTodos, editingId, editText, onTog
                             </div>
                             <div className="button-group">
                                 <button
-                                    onClick={() => onEdit(todo.id, todo.text)}
+                                    onClick={() => handleEdit(todo.id)}
                                     className="edit-button"
                                 >
                                     <Edit size={22} />
                                 </button>
                                 <button
-                                    onClick={() => onDelete(todo.id)}
+                                    onClick={() => handleDelete(todo.id)}
                                     className="delete-button"
                                 >
                                     <Trash2 size={22} />
                                 </button>
                             </div>
                         </div>
-                    ))
-                    }
+                    ))}
                 </div>
             </div>
         </div>
     );
 };
 
-// Use React.memo to prevent unnecessary re-renders
 export default React.memo(TodoLists);
