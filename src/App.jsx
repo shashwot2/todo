@@ -1,18 +1,33 @@
 import React, { useEffect, useContext, useRef } from "react";
 import './App.css';
-import TodoLists from './components/TodoLists';
-import { TodoContext } from './context/TodoContext';
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchInitTodoData, setInputValue } from "./slice/todoslice"
+import TodoLists from "./components/TodoLists";
 export const App = () => {
-  const { state, handlers } = useContext(TodoContext);
-  const { inputValue } = state;
-  const { handleInputChange, handleAdd } = handlers;
+  const dispatch = useDispatch();
   const inputRef = useRef(null);
-
+  const { inputValue } = useSelector(state => state.todo);
+  useEffect(() => {
+    dispatch(fetchInitTodoData())
+  }, [dispatch])
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  const handleInputChange = (e) => {
+    dispatch(setInputValue(e.target.value))
+  };
+  const handleAdd = (e) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    const newTodo = {
+      text: inputValue,
+      completed: false
+    };
+
+    dispatch(addTodoAsync(newTodo));
+  };
 
   return (
     <div className="container">

@@ -1,11 +1,10 @@
 import React from "react";
-import { useTodoContext } from '../context/TodoContext.jsx';
+import { useSelector } from "react-redux";
 import { TodoItem } from "./TodoItem.jsx";
 
 export const TodoLists = () => {
-    const { state } = useTodoContext();
-    const { todos} = state;
-
+    const { todos } = useSelector(state => state.todo);
+    
     const { incompleteTodos, completedTodos } = React.useMemo(() => ({
         incompleteTodos: todos.filter(todo => !todo.completed),
         completedTodos: todos.filter(todo => todo.completed)
@@ -15,7 +14,6 @@ export const TodoLists = () => {
         { title: "Pending Tasks", id: "todolist-todo", items: incompleteTodos, isCompleted: false },
         { title: "Completed Tasks", id: "todolist-done", items: completedTodos, isCompleted: true }
     ];
-
     return (
         <div className="grid-container">
             {columns.map(column => (

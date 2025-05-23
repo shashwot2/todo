@@ -1,9 +1,38 @@
 import { Edit, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
-import { useTodoContext } from '../context/TodoContext.jsx';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+    toggleTodo,
+    deleteTodoAsync,
+    startEdit,
+    updateEditText,
+    finishEdit,
+    updateTodoAsync
+} from '../slice/todoslice';
 export const TodoItem = ({ todo, isCompleted }) => {
-    const { handlers, state } = useTodoContext();
-    const { editingId, editText} = state;
-    const { handleToggleComplete, handleDelete, handleEdit, handleEditChange } = handlers;
+    const { editingId, editText } = useSelector(state => state.todo);
+    const dispatch = useDispatch();
+    const handleToggleComplete = (id) => {
+        const updatedTodo = { ...todo, completed: !todo.completed };
+        dispatch(updateTodoAsync({ id, updatedTodo }));
+    };
+
+    const handleDelete = (id) => {
+        dispatch(deleteTodoAsync(id));
+    };
+
+    const handleEdit = (id) => {
+        if (id === editingId) {
+            const updatedTodo = { ...todo, text: editText };
+            dispatch(updateTodoAsync({ id, updatedTodo }));
+            dispatch(finishEdit({ id }));
+        } else {
+            dispatch(startEdit({ id, text: todo.text }));
+        }
+    };
+
+    const handleEditChange = (value) => {
+        dispatch(updateEditText(value));
+    };
     return (
         <div className={`todo-item ${isCompleted ? 'completed' : 'pending'}`}>
             {isCompleted && (
